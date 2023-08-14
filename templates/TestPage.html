@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep monitoring System</title>
+    <script type="text/javascript">
+      setInterval(readresult, 1000)
+      function readresult(){
+        var res = document.getElementById("result");
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/sen", true)
+        xhr.send();
+        xhr.onload=()=>{
+          if(xhr.readyState === 4){
+            if(xhr.status === 200){
+              res.innerHTML =  "수면자세: " + xhr.responseText;
+            } else{
+              res.innerHTML = "failed";
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        h1{
+            font-size: 60px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <form action="index" method="post">
+        <h1>테스트페이지 입니다</h1>
+        <div id="result"></div>
+    </form>
+</body>
+</html>
