@@ -93,12 +93,13 @@ def readSensor():
         opened_serial_port = None
         opened_serial_port = open_serial_port(port_number, baud_rate) 
         print (opened_serial_port) 
-    buffers = []
+    #buffers = []
     byte = opened_serial_port.read(1) 
     print(byte)
     
     while byte: 
         buffer = []
+        buffers = []
         if byte == mask_header:
             temp_header = byte
             byte = opened_serial_port.read(1)
@@ -149,7 +150,8 @@ def readSensor():
         df = df.to_numpy()
         results = df/0xffff
         print(results.shape)
-        results = results[0:11, 64*i:64*i+11]
+        #results = results[0:11, 64*i:64*i+11]
+        results = results[0:11, 0:11]
         lock.acquire()
         sen_num = results
         lock.release()
