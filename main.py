@@ -93,13 +93,13 @@ def readSensor():
         opened_serial_port = None
         opened_serial_port = open_serial_port(port_number, baud_rate) 
         print (opened_serial_port) 
-    #buffers = []
+    buffers = []
     byte = opened_serial_port.read(1) 
     print(byte)
     
     while byte: 
         buffer = []
-        buffers = []
+        
         if byte == mask_header:
             temp_header = byte
             byte = opened_serial_port.read(1)
@@ -122,7 +122,7 @@ def readSensor():
                             buffer[-1] = int_from_bytes(temp_bitwise_and)
                         
                         byte = opened_serial_port.read(2)
-                    
+
                     else:
                         tail = int_from_bytes(byte)
                         buffer.append(tail)
@@ -155,6 +155,7 @@ def readSensor():
         lock.acquire()
         sen_num = results
         lock.release()
+        
 
 app = Flask(__name__)
 @app.route("/", methods=['POST', 'GET'])
@@ -184,6 +185,8 @@ def sendData():
         r = "rightprone"
     elif r == 5:
         r = "supine"
+    elif r == 6:
+        r = "Playing"
     print(r)
     r = str(r)
     return r
