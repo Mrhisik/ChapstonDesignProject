@@ -189,7 +189,7 @@ def sendData():
         r = "Playing"
     print(r)
     r = str(r)
-    return r
+    return r, "1", "2", "3"
  
 if __name__ == "__main__":
     rknn=load_model()

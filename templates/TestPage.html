@@ -8,13 +8,27 @@
       setInterval(readresult, 1000)
       function readresult(){
         var res = document.getElementById("result");
+        var op = document.getElementById("operatingtime");
+        var nob = document.getElementById("notob");
+        var ob = document.getElementById("ob");
+
+        var v1 = ""
+        var v2 = ""
+        var v3 = ""
+        var v4 = ""
+        
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/sen", true)
         xhr.send();
         xhr.onload=()=>{
           if(xhr.readyState === 4){
             if(xhr.status === 200){
-              res.innerHTML =  "수면자세: " + xhr.responseText;
+              v1, v2, v3, v4 = xhr.responseText;
+              res.innerHTML =  "수면자세: " + v1;
+              op.innerHTML =  "작동시간: " + v2;
+              nob.innerHTML =  "비 수면 시간: " + v3;
+              ob.innerHTML =  "수면 시간: " + v4;
+            
             } else{
               res.innerHTML = "failed";
             }
@@ -23,15 +37,19 @@
       }
     </script>
     <style>
-        div{
+        @result{
             font-size: 60px;
         }
+
     </style>
 </head>
 <body>
     <form action="index" method="post">
 
         <div id="result"></div>
+        <div id = "operatingtime"></div>
+        <div id = "notob"></div>
+        <div id = "ob"></div>
     </form>
 </body>
 </html>
