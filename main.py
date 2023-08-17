@@ -1,5 +1,5 @@
 # -*- encoding:UTF-8 -*-
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, jsonify
 import matplotlib.pyplot as plt
 from rknnlite.api import RKNNLite
 import numpy as np
@@ -17,6 +17,10 @@ sen_num = 0
 i = 0
 lock = threading.Lock()
 event = Event()
+optime = 0
+notobtime = 0
+obtime = 0
+
 
 def get_predict(probability):
     data = probability
@@ -79,6 +83,14 @@ def preprocess(res):
     results = np.array(results)
     return results
 
+def timer():
+    global optime
+    while True:
+        print(optime)
+        optime = optime + 1
+        time.sleep(1)
+
+
 def readSensor():
     global sen_num
     global i  
@@ -93,13 +105,13 @@ def readSensor():
         opened_serial_port = None
         opened_serial_port = open_serial_port(port_number, baud_rate) 
         print (opened_serial_port) 
-    buffers = []
+    
     byte = opened_serial_port.read(1) 
     print(byte)
-    
+
     while byte: 
         buffer = []
-        
+        buffers = []
         if byte == mask_header:
             temp_header = byte
             byte = opened_serial_port.read(1)
@@ -161,7 +173,10 @@ app = Flask(__name__)
 @app.route("/", methods=['POST', 'GET'])
 def mainPage():
     t1 = threading.Thread(target=readSensor)
+    t2 = threading.Thread(target=timer)
     t1.start()
+    t2.start()
+    
     return render_template("TestPage.html")
 
 @app.route("/sen", methods=['POST', 'GET'])
@@ -169,28 +184,39 @@ def sendData():
     global sen_num
     global i
 
+    global obtime
+    global notobtime
     r = sen_num
 
     print(" i => ", i)
     r = predict(rknn, r.astype("float32"))
     if r == 0:
         r = "nothing"
+        notobtime = notobtime + 1
     elif r == 1:
         r = "leftsupine"
+        obtime = obtime + 1
     elif r == 2:
         r = "leftprone"
+        obtime = obtime + 1
     elif r == 3:
         r = "rightsupine"
+        obtime = obtime + 1
     elif r == 4:
         r = "rightprone"
+        obtime = obtime + 1
     elif r == 5:
         r = "supine"
+        obtime = obtime + 1
     elif r == 6:
         r = "Playing"
+        obtime = obtime + 1
     print(r)
+    
     r = str(r)
-    return r, "1", "2", "3"
- 
+    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)
+    print(data)
+    return data
 if __name__ == "__main__":
     rknn=load_model()
     print("start")
