@@ -14,6 +14,7 @@
         var op = document.getElementById("operatingtime");
         var nob = document.getElementById("notob");
         var ob = document.getElementById("ob");
+        
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/sen", true)
         xhr.send();
@@ -25,8 +26,26 @@
               op.innerHTML =  "작동시간: " + values[1]+"초";
               nob.innerHTML =  "비수면 시간: " + values[2]+"초";
               ob.innerHTML =  "수면 시간: " + values[3]+"초";
+              respi.innerHTML = "호흡 수: " + values[4]+"번";
             } else{
               res.innerHTML = "failed";
+            }
+          }
+        }
+      }
+      setInterval(readRespirate, 1000/30)
+      function readRespirate(){
+        var respi = document.getElementById("respiration");
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/respirate", true)
+        xhr.send();
+        xhr.onload=()=>{
+          if(xhr.readyState === 4){
+            if(xhr.status === 200){
+              var value = xhr.responseText();
+              respi.innerHTMl = "호흡 수: " + value+"번";
+            } else{
+              respi.innerHTML= "failed";
             }
           }
         }
@@ -46,6 +65,7 @@
         <div id = "operatingtime"></div>
         <div id = "notob"></div>
         <div id = "ob"></div>
+        <div id = "raspiration"></div>
 
         <button onclick="location.href='Monitoring.html'">점수</button>
     </form>

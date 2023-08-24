@@ -12,9 +12,6 @@ from IPython.display import clear_output
 import pandas as pd
 import threading, requests, time
 from threading import Event, Thread
-import scipy
-import sys
-from scipy.signal import find_peaks
 
 sen_num = 0
 i = 0
@@ -23,7 +20,7 @@ event = Event()
 optime = 0
 notobtime = 0
 obtime = 0
-respirate = 0
+
 
 def get_predict(probability):
     data = probability
@@ -92,83 +89,7 @@ def timer():
         print(optime)
         optime = optime + 1
         time.sleep(1)
-def respirationrate():
-    global respirate
-    port = "/dev/ttyUSB1"
-    baud = 1497600
-    exit = False
-    
-    ser = serial.Serial(port, baud, timeout=None)
-    bytes = []
-    graph = []
-    
-    cnt = 0
-    ele = 0
-    y_list = []
-    graph_res = []
-    graph_result = []
-    graph_result1 = []
-    graph_result2 = []
-    sec = 0
-    start = time.time()
-    while True:
-        if int(sec) % 60 == 0:
-            graph_res = []
-            graph_result = []
-            graph_result1 = []
-            graph_result2 = []
-            ele = 0
-        result = 0
-        
-        ser.write("\x41".encode())
 
-        print("{0} epoch".format(cnt+1))
-        for _ in range(160):
-
-            byte = ser.read()
-            i = int.from_bytes(byte, byteorder="little")
-
-            bytes.append(i)
-            result = result + i
-            print(i, end=" ")
-        if cnt == 0 and result > 0:
-            cnt = cnt+ 1
-            result = 0
-            continue
-        graph_res.append(result/160)
-        graph_res = np.array(graph_res)
-        print("\ngraph_res: {0}".format(graph_res.shape[0]))
-        graph_result.append(graph_res[ele-30:ele+30].mean())
-        graph_result = np.array(graph_result)
-        graph_result1.append(graph_result[ele-30:ele+30].mean())
-        graph_result1 = np.array(graph_result1)
-        graph_result2.append(graph_result1[ele-30:ele+30].mean())
-        ele = ele + 1
-        #graph_result = np.array(graph_result)
-        #for i in range(graph_result.shape[0]): # 호흡 수 추출
-         #   graph_result1.append(graph_result[i-30:i+30].mean())
-        #graph_result1 = np.array(graph_result)
-        
-        peaks, _ = scipy.signal.find_peaks(graph_result1)
-        for j in peaks:
-            y_list.append(graph_result1[j])
-        #print("peaks: {0}".format(peaks))
-        #print("y_list: {0}".format(y_list))
-        #print(graph_result2)
-        #plt.plot(graph_result1,
-        #         color='skyblue')
-        #plt.scatter(peaks, y_list, 7, color = 'red')
-        #plt.show()
-        print(len(peaks))
-        graph_res = graph_res.tolist()
-        graph_result = graph_result.tolist()
-        graph_result1 = graph_result1.tolist()
-        end = time.time()
-        sec = end - start
-        print(int(sec))
-        respirate = len(peaks)
-        #graph_result = graph_result.tolist()
-        
 def readSensor():
     global sen_num
     global i  
@@ -242,19 +163,58 @@ def readSensor():
         print(results.shape)
         #results = results[0:11, 64*i:64*i+11]
         results = results[0:11, 0:11]
-
+        lock.acquire()
         sen_num = results
+        lock.release()
+def reprate():
+    port = "COM5"
+    baud = 1497600
+    exit = False
+
+
+    ser = serial.Serial(port, baud, timeout=None)
+
+    epoch = 60 # 반복 횟수(초당 1번)
+
+    bytes = []
+    cnt = 0
+    while True:
+        print("{0} epoch".format(cnt+1))
+        ser.write("\x41".encode())
+        if cnt == 0:
+            time.sleep(1/30)
         
+        for _ in range(160):
+            byte = ser.read()
+            i = int.from_bytes(byte, byteorder="little")
+            
+            bytes.append(i)
+            
+            print(i, end=" ")
+        time.sleep(1/30)
+        print("\n")
+        os.system('cls')
+        cnt += 1
         
+        if cnt == epoch+1:
+            break
+        
+    bytes = np.array(bytes)
+    bytes = bytes.reshape(cnt, 160)
+
+    df = pd.DataFrame(bytes[1:cnt])
+    df.to_csv('test1.csv')
+
+    print(bytes.shape)   
+    print("Finished")      
+
 app = Flask(__name__)
 @app.route("/", methods=['POST', 'GET'])
 def mainPage():
     t1 = threading.Thread(target=readSensor)
     t2 = threading.Thread(target=timer)
-    t3 = threading.Thread(target=respirationrate)
     t1.start()
     t2.start()
-    t3.start()
     
     return render_template("TestPage.html")
 
@@ -262,7 +222,7 @@ def mainPage():
 def sendData():
     global sen_num
     global i
-    
+
     global obtime
     global notobtime
     r = sen_num
@@ -290,20 +250,17 @@ def sendData():
     elif r == 6:
         r = "Playing"
         obtime = obtime + 1
-        
     print(r)
     
     r = str(r)
-    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","
+    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)
     print(data)
     return data
-@app.route("/respirate", methods=['POST', 'GET'])
-def sendRespiration():
-    global respirate
-    return str(respirate)
 
 if __name__ == "__main__":
     rknn=load_model()
     print("start")
 
     app.run(port = 8080, debug=True, host="localhost", threaded=True)
+
+    
