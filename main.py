@@ -92,6 +92,7 @@ def timer():
         print(optime)
         optime = optime + 1
         time.sleep(1)
+        
 def respirationrate():
     global respirate
     port = "/dev/ttyUSB1"
@@ -112,14 +113,10 @@ def respirationrate():
     sec = 0
     start = time.time()
     while True:
-        if int(sec) % 60 == 0:
-            graph_res = []
-            graph_result = []
-            graph_result1 = []
-            graph_result2 = []
-            ele = 0
-        result = 0
-        
+
+        if len(graph_res) > 100:
+            del graph_result2[0]
+            
         ser.write("\x41".encode())
 
         print("{0} epoch".format(cnt+1))
@@ -166,7 +163,9 @@ def respirationrate():
         end = time.time()
         sec = end - start
         print(int(sec))
+        lock.acquire()
         respirate = len(peaks)
+        lock.release()
         #graph_result = graph_result.tolist()
         
 def readSensor():
@@ -265,6 +264,8 @@ def sendData():
     
     global obtime
     global notobtime
+    global respirate
+    respi = respirate
     r = sen_num
 
     print(" i => ", i)
@@ -294,13 +295,9 @@ def sendData():
     print(r)
     
     r = str(r)
-    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","
+    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)
     print(data)
     return data
-@app.route("/respirate", methods=['POST', 'GET'])
-def sendRespiration():
-    global respirate
-    return str(respirate)
 
 if __name__ == "__main__":
     rknn=load_model()

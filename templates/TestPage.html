@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sleep monitoring System</title>
     <script type="text/javascript">
-      setInterval(readresult, 1000)
+      setInterval(readresult, 333)
+      
       function readresult(){
         var sec = 0
         var min = 0
@@ -14,7 +15,7 @@
         var op = document.getElementById("operatingtime");
         var nob = document.getElementById("notob");
         var ob = document.getElementById("ob");
-        
+        var respi = document.getElementById("respiration");
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/sen", true)
         xhr.send();
@@ -26,18 +27,18 @@
               op.innerHTML =  "작동시간: " + values[1]+"초";
               nob.innerHTML =  "비수면 시간: " + values[2]+"초";
               ob.innerHTML =  "수면 시간: " + values[3]+"초";
-              respi.innerHTML = "호흡 수: " + values[4]+"번";
+              respi.innerHTML = "분당 호흡 수: " + values[4]+"번";
             } else{
               res.innerHTML = "failed";
             }
           }
         }
       }
-      setInterval(readRespirate, 1000/30)
+      /*setInterval(readRespirate, 333)
       function readRespirate(){
         var respi = document.getElementById("respiration");
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/respirate", true)
+        xhr.open("POST", "/respiration", true)
         xhr.send();
         xhr.onload=()=>{
           if(xhr.readyState === 4){
@@ -49,7 +50,7 @@
             }
           }
         }
-      }
+      }*/
     </script>
     <style>
         div{
@@ -65,7 +66,7 @@
         <div id = "operatingtime"></div>
         <div id = "notob"></div>
         <div id = "ob"></div>
-        <div id = "raspiration"></div>
+        <div id = "respiration">호흡 수: </div>
 
         <button onclick="location.href='Monitoring.html'">점수</button>
     </form>
