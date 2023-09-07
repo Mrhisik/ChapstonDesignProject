@@ -113,10 +113,10 @@ def respirationrate():
     sec = 0
     start = time.time()
     while True:
-
-        if len(graph_res) > 100:
+        if len(graph_res) > 1900:
             del graph_result2[0]
-            
+        result = 0
+        
         ser.write("\x41".encode())
 
         print("{0} epoch".format(cnt+1))
@@ -146,9 +146,9 @@ def respirationrate():
          #   graph_result1.append(graph_result[i-30:i+30].mean())
         #graph_result1 = np.array(graph_result)
         
-        peaks, _ = scipy.signal.find_peaks(graph_result1)
+        peaks, _ = scipy.signal.find_peaks(graph_result2)
         for j in peaks:
-            y_list.append(graph_result1[j])
+            y_list.append(graph_result2[j])
         #print("peaks: {0}".format(peaks))
         #print("y_list: {0}".format(y_list))
         #print(graph_result2)
@@ -241,9 +241,9 @@ def readSensor():
         print(results.shape)
         #results = results[0:11, 64*i:64*i+11]
         results = results[0:11, 0:11]
-
+        lock.acquire()
         sen_num = results
-        
+        lock.release()
         
 app = Flask(__name__)
 @app.route("/", methods=['POST', 'GET'])
