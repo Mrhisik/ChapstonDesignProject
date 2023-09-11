@@ -23,7 +23,11 @@ event = Event()
 optime = 0
 notobtime = 0
 obtime = 0
+bed = True
 respirate = 0
+
+
+
 
 def get_predict(probability):
     data = probability
@@ -93,6 +97,21 @@ def timer():
         optime = optime + 1
         time.sleep(1)
         
+def sleep_timer():
+    global bed
+    global notobtime
+    global obtime
+    
+    while True:
+        if bed == True:
+            print(obtime)
+            obtime = obtime + 1
+            time.sleep(1)
+        else:
+            print(notobtime)
+            notobtime = notobtime + 1
+            time.sleep(1)
+            
 def respirationrate():
     global respirate
     port = "/dev/ttyUSB1"
@@ -251,17 +270,18 @@ def mainPage():
     t1 = threading.Thread(target=readSensor)
     t2 = threading.Thread(target=timer)
     t3 = threading.Thread(target=respirationrate)
+    t4 = threading.Thread(target=sleep_timer)
     t1.start()
     t2.start()
     t3.start()
-    
+    t4.start()
     return render_template("TestPage.html")
 
 @app.route("/sen", methods=['POST', 'GET'])
 def sendData():
     global sen_num
     global i
-    
+    global bed
     global obtime
     global notobtime
     global respirate
@@ -272,25 +292,25 @@ def sendData():
     r = predict(rknn, r.astype("float32"))
     if r == 0:
         r = "nothing"
-        notobtime = notobtime + 1
+        bed = False
     elif r == 1:
         r = "leftsupine"
-        obtime = obtime + 1
+        bed = True
     elif r == 2:
         r = "leftprone"
-        obtime = obtime + 1
+        bed = True
     elif r == 3:
         r = "rightsupine"
-        obtime = obtime + 1
+        bed = True
     elif r == 4:
         r = "rightprone"
-        obtime = obtime + 1
+        bed = True
     elif r == 5:
         r = "supine"
-        obtime = obtime + 1
+        bed = True
     elif r == 6:
         r = "Playing"
-        obtime = obtime + 1
+        bed = False
         
     print(r)
     
