@@ -23,11 +23,8 @@ event = Event()
 optime = 0
 notobtime = 0
 obtime = 0
-bed = True
+bed = False
 respirate = 0
-
-
-
 
 def get_predict(probability):
     data = probability
