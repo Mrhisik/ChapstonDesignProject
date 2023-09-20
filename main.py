@@ -134,15 +134,13 @@ def differential(results):
 def respirationrate():
     global respirate
     global heartrate
-    global optime
     port = "/dev/ttyUSB1"
     baud = 1497600
     exit = False
-    
+    sec = 0
     ser = serial.Serial(port, baud, timeout=None)
     bytes = []
-    graph = []
-    
+    graph = []   
     cnt = 0
     ele = 0
     y_list = []
@@ -151,11 +149,12 @@ def respirationrate():
     graph_result1 = []
     graph_result2 = []
     
+    start = time.time()
     flag = True
     while True:
         ser.write("\x41".encode())
         time.sleep(1/30)
-        if int(optime) > 60:
+        if int(sec) > 60:
             del graph_res[0]
         result = 0
         
@@ -174,11 +173,13 @@ def respirationrate():
             cnt = cnt+ 1
             result = 0
             continue
+        
         graph_res.append(result/160)
         graph_res = np.array(graph_res)
         print("\ngraph_res: {0}".format(graph_res.shape[0]))
-        
-        if int(optime) % 60 == 0 and int(optime) > 0:
+        end = time.time()
+        sec = end-start
+        if int(sec) % 60 == 0 and int(sec) > 0:
             if flag == True:
                 graph_res = np.array(graph_res)
                 for i in range(graph_res.shape[0]):
