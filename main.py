@@ -152,12 +152,12 @@ def respirationrate():
     start = time.time()
     flag = True
     while True:
-        ser.write("\x41".encode())
+        
         time.sleep(1/30)
         if int(sec) > 60:
             del graph_res[0]
         result = 0
-        
+        ser.write("\x41".encode())
         
         print("{0} epoch".format(cnt+1))
         for _ in range(160):
@@ -202,11 +202,12 @@ def respirationrate():
                 graph_res = graph_res.tolist()
                 graph_result = graph_result.tolist()
                 graph_result1 = graph_result1.tolist()
-                flag = False
+                
                 lock.acquire()
                 respirate = len(peaks)
                 heartrate = differential(graph_res)
                 lock.release()
+                flag = False
         else:
             flag = True
         
