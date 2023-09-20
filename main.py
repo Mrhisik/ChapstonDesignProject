@@ -149,11 +149,12 @@ def respirationrate():
     graph_result1 = []
     graph_result2 = []
     
+    temp = []
+    
     start = time.time()
     flag = True
     while True:
-        if int(sec) > 60:
-            del graph_res[0]
+
         result = 0
         ser.write("\x41".encode())
         
@@ -181,6 +182,7 @@ def respirationrate():
         print(int(sec))
         if int(sec) % 60 == 0 and int(sec) > 0:
             if flag == True:
+                temp = np.array(graph_res)
                 graph_res = np.array(graph_res)
                 for i in range(graph_res.shape[0]):
                     graph_result.append(graph_res[i-30:i+30].mean())
@@ -206,6 +208,7 @@ def respirationrate():
                 respirate = len(peaks)
                 heartrate = differential(graph_res)
                 lock.release()
+                graph_res = []
                 flag = False
         else:
             flag = True
