@@ -113,7 +113,7 @@ def differential(results):
     dif = []
     cnt = 0
     h_list = []
-    global heartrate
+    
     for i in range(results.shape[0]):
         b_list.append(results[i].mean())
     
@@ -129,10 +129,12 @@ def differential(results):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
     print("심박수: {0}".format(cnt))
-    heartrate = cnt
+    return cnt
                 
 def respirationrate():
     global respirate
+    global heartrate
+    global optime
     port = "/dev/ttyUSB1"
     baud = 1497600
     exit = False
@@ -148,13 +150,12 @@ def respirationrate():
     graph_result = []
     graph_result1 = []
     graph_result2 = []
-    sec = 0
-    start = time.time()
+    
     flag = True
     while True:
         time.sleep(1/40)
         ser.write("\x41".encode())
-        if int(sec) > 60:
+        if int(optime) > 60:
             del graph_res[0]
         result = 0
         
@@ -177,10 +178,7 @@ def respirationrate():
         graph_res = np.array(graph_res)
         print("\ngraph_res: {0}".format(graph_res.shape[0]))
         
-        end = time.time()
-        sec = end - start
-        print(int(sec))
-        if int(sec) % 60 == 0 and int (sec) > 0:
+        if int(optime) % 60 == 0 and int(optime) > 0:
             if flag == True:
                 graph_res = np.array(graph_res)
                 for i in range(graph_res.shape[0]):
@@ -197,7 +195,7 @@ def respirationrate():
                 #print("peaks: {0}".format(peaks))
                 #print("y_list: {0}".format(y_list))
                 #print(graph_result2)
-                differential(graph_res)
+                
                 print("peaks: {0}".format(len(peaks)))
                 graph_res = graph_res.tolist()
                 graph_result = graph_result.tolist()
@@ -205,6 +203,7 @@ def respirationrate():
                 flag = False
                 lock.acquire()
                 respirate = len(peaks)
+                heartrate = differential(graph_res)
                 lock.release()
         else:
             flag = True
