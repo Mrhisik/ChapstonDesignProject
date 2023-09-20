@@ -109,6 +109,7 @@ def sleep_timer():
             print(notobtime)
             notobtime = notobtime + 1
             time.sleep(1)
+            
 def differential(results):
     b_list = []
     dif = []
