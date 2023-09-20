@@ -210,8 +210,10 @@ def respirationrate():
                 lock.release()
                 graph_res = []
                 flag = False
+                continue
         else:
             flag = True
+            continue
         
 def readSensor():
     global sen_num
