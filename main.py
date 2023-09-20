@@ -152,8 +152,7 @@ def respirationrate():
     start = time.time()
     flag = True
     while True:
-        
-        time.sleep(1/30)
+    
         if int(sec) > 60:
             del graph_res[0]
         result = 0
@@ -265,9 +264,6 @@ def readSensor():
         
         byte = opened_serial_port.read(1)
 
-        seconds = time.time()
-
-        print("Seconds since epoch =", seconds)	
         buffers2 = buffers
         max_col = 32
         max_row = 64
