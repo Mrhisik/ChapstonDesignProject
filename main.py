@@ -26,6 +26,7 @@ obtime = 0
 bed = False
 respirate = 0
 heartrate = 0
+
 def get_predict(probability):
     data = probability
     data = data.tolist()
@@ -204,10 +205,10 @@ def respirationrate():
                 graph_result = graph_result.tolist()
                 graph_result1 = graph_result1.tolist()
                 
-                lock.acquire()
+                
                 respirate = len(peaks)
                 heartrate = differential(graph_res)
-                lock.release()
+                
                 graph_res = []
                 flag = False
                 continue
