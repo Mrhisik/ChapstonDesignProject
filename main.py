@@ -201,15 +201,15 @@ def respirationrate():
                 #print(graph_result2)
                 
                 print("peaks: {0}".format(len(peaks)))
-                graph_res = graph_res.tolist()
+                
                 graph_result = graph_result.tolist()
                 graph_result1 = graph_result1.tolist()
                 
-                
+                lock.acquire()
                 respirate = len(peaks)
                 heartrate = differential(graph_res)
-                
-                graph_res = []
+                lock.release()
+                graph_res = graph_res.tolist()
                 flag = False
                 continue
         else:
