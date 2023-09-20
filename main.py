@@ -25,7 +25,7 @@ notobtime = 0
 obtime = 0
 bed = False
 respirate = 0
-
+heartrate = 0
 def get_predict(probability):
     data = probability
     data = data.tolist()
@@ -108,7 +108,29 @@ def sleep_timer():
             print(notobtime)
             notobtime = notobtime + 1
             time.sleep(1)
-            
+def differential(results):
+    b_list = []
+    dif = []
+    cnt = 0
+    h_list = []
+    global heartrate
+    for i in range(results.shape[0]):
+        b_list.append(results[i].mean())
+    
+    for i in range(len(b_list)-1):
+        d = b_list[i+1]-b_list[i]
+        dif.append(d)
+    dif = np.array(dif)
+    for i in range(dif.shape[0]): # 심박수 추출
+        h_list.append(dif[i-15:i+15].mean())
+    h_list = np.array(h_list)
+    
+    for i in range(h_list.shape[0]):
+        if h_list[i] < 0 and h_list[i+1]>0:
+            cnt+=1
+    print("심박수: {0}".format(cnt))
+    heartrate = cnt
+                
 def respirationrate():
     global respirate
     port = "/dev/ttyUSB1"
@@ -128,13 +150,15 @@ def respirationrate():
     graph_result2 = []
     sec = 0
     start = time.time()
+    flag = True
     while True:
-        if len(graph_res) > 1900:
-            del graph_result2[0]
+        time.sleep(1/40)
+        ser.write("\x41".encode())
+        if int(sec) > 60:
+            del graph_res[0]
         result = 0
         
-        ser.write("\x41".encode())
-
+        
         print("{0} epoch".format(cnt+1))
         for _ in range(160):
 
@@ -144,6 +168,7 @@ def respirationrate():
             bytes.append(i)
             result = result + i
             print(i, end=" ")
+            
         if cnt == 0 and result > 0:
             cnt = cnt+ 1
             result = 0
@@ -151,38 +176,38 @@ def respirationrate():
         graph_res.append(result/160)
         graph_res = np.array(graph_res)
         print("\ngraph_res: {0}".format(graph_res.shape[0]))
-        graph_result.append(graph_res[ele-30:ele+30].mean())
-        graph_result = np.array(graph_result)
-        graph_result1.append(graph_result[ele-30:ele+30].mean())
-        graph_result1 = np.array(graph_result1)
-        graph_result2.append(graph_result1[ele-30:ele+30].mean())
-        ele = ele + 1
-        #graph_result = np.array(graph_result)
-        #for i in range(graph_result.shape[0]): # 호흡 수 추출
-         #   graph_result1.append(graph_result[i-30:i+30].mean())
-        #graph_result1 = np.array(graph_result)
         
-        peaks, _ = scipy.signal.find_peaks(graph_result2)
-        for j in peaks:
-            y_list.append(graph_result2[j])
-        #print("peaks: {0}".format(peaks))
-        #print("y_list: {0}".format(y_list))
-        #print(graph_result2)
-        #plt.plot(graph_result1,
-        #         color='skyblue')
-        #plt.scatter(peaks, y_list, 7, color = 'red')
-        #plt.show()
-        print(len(peaks))
-        graph_res = graph_res.tolist()
-        graph_result = graph_result.tolist()
-        graph_result1 = graph_result1.tolist()
         end = time.time()
         sec = end - start
         print(int(sec))
-        lock.acquire()
-        respirate = len(peaks)
-        lock.release()
-        #graph_result = graph_result.tolist()
+        if int(sec) % 60 == 0 and int (sec) > 0:
+            if flag == True:
+                graph_res = np.array(graph_res)
+                for i in range(graph_res.shape[0]):
+                    graph_result.append(graph_res[i-30:i+30].mean())
+                graph_result = np.array(graph_result)
+                for i in range(graph_result.shape[0]):
+                    graph_result1.append(graph_result[i-30:i+30].mean())
+                graph_result1 = np.array(graph_result1)
+                for i in range(graph_result1.shape[0]):
+                    graph_result2.append(graph_result1[i-30:i+30].mean())
+                peaks, _ = scipy.signal.find_peaks(graph_result2)
+                for j in peaks:
+                    y_list.append(graph_result2[j])
+                #print("peaks: {0}".format(peaks))
+                #print("y_list: {0}".format(y_list))
+                #print(graph_result2)
+                differential(graph_res)
+                print("peaks: {0}".format(len(peaks)))
+                graph_res = graph_res.tolist()
+                graph_result = graph_result.tolist()
+                graph_result1 = graph_result1.tolist()
+                flag = False
+                lock.acquire()
+                respirate = len(peaks)
+                lock.release()
+        else:
+            flag = True
         
 def readSensor():
     global sen_num
@@ -282,6 +307,7 @@ def sendData():
     global obtime
     global notobtime
     global respirate
+    global heartrate
     respi = respirate
     r = sen_num
 
@@ -306,13 +332,22 @@ def sendData():
         r = "supine"
         bed = True
     elif r == 6:
-        r = "Playing"
+        r = "xsupine"
+        bed = False
+    elif r == 7:
+        r = "prone"
+        bed = False
+    elif r == 8:
+        r = "not sleeping"
+        bed = False
+    elif r == 9:
+        r = "not sleeping"
         bed = False
         
     print(r)
     
     r = str(r)
-    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)
+    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)+","+str(heartrate)
     print(data)
     return data
 
