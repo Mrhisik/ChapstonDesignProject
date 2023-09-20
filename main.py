@@ -308,6 +308,7 @@ def sendData():
     global notobtime
     global respirate
     global heartrate
+    hr = heartrate
     respi = respirate
     r = sen_num
 
@@ -347,7 +348,7 @@ def sendData():
     print(r)
     
     r = str(r)
-    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)+","+str(heartrate)
+    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)+","+str(hr)
     print(data)
     return data
 
