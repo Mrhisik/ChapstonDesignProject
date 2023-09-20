@@ -153,8 +153,8 @@ def respirationrate():
     
     flag = True
     while True:
-        time.sleep(1/40)
         ser.write("\x41".encode())
+        time.sleep(1/30)
         if int(optime) > 60:
             del graph_res[0]
         result = 0
