@@ -179,6 +179,7 @@ def respirationrate():
         print("\ngraph_res: {0}".format(graph_res.shape[0]))
         end = time.time()
         sec = end-start
+        print(int(sec))
         if int(sec) % 60 == 0 and int(sec) > 0:
             if flag == True:
                 graph_res = np.array(graph_res)
