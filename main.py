@@ -152,7 +152,6 @@ def respirationrate():
     start = time.time()
     flag = True
     while True:
-    
         if int(sec) > 60:
             del graph_res[0]
         result = 0
@@ -178,6 +177,7 @@ def respirationrate():
         print("\ngraph_res: {0}".format(graph_res.shape[0]))
         end = time.time()
         sec = end-start
+        graph_res = graph_res.tolist()
         print(int(sec))
         if int(sec) % 60 == 0 and int(sec) > 0:
             if flag == True:
