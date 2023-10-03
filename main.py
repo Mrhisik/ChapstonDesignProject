@@ -198,7 +198,7 @@ def respirationrate():
             del graph_res[0]
         if int(sec) >= 60:    
         #if int(sec) % 60 == 0 and int(sec) > 0:
-            if int((int(sec) % 60) // 5) == 0:
+            if int((int(sec) % 60) % 5) == 0:
                 
                 if flag == True:
                     temp = np.array(graph_res)
