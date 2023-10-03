@@ -127,7 +127,7 @@ def differential(results):
         h_list.append(dif[i-15:i+15].mean())
     h_list = np.array(h_list)
     
-    for i in range(h_list.shape[0]):
+    for i in range(h_list.shape[0]-1):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
     print("심박수: {0}".format(cnt))
