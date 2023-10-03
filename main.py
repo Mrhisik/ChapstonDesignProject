@@ -110,7 +110,18 @@ def sleep_timer():
             notobtime = notobtime + 1
             time.sleep(1)
             
-def differential(results, respirate_graph):
+def draw_graph(respirate_graph, h_list):
+    plt.subplot(2, 1, 1)
+    plt.plot(respirate_graph, color="skyblue")
+    plt.title("Respiration graph")    
+    plt.subplot(2,1,2)
+    plt.plot(h_list, color="skyblue")
+    plt.title("Heartrate graph")
+    
+    plt.tight_layout()
+    plt.savefig("graph.png") 
+              
+def differential(results, respirate_graph, time):
     b_list = []
     dif = []
     cnt = 0
@@ -130,17 +141,8 @@ def differential(results, respirate_graph):
     for i in range(h_list.shape[0]-1):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
-    plt.subplot(2, 1, 1)
-    plt.plot(respirate_graph, color="skyblue")
-    plt.title("Respiration graph")    
-    plt.subplot(2,1,2)
-    plt.plot(h_list, color="skyblue")
-    plt.title("Heartrate graph")
-    
-    plt.tight_layout()
-    plt.savefig("graph.png")
     print("심박수: {0}".format(cnt))
-    return cnt
+    return h_list, cnt
                 
 def respirationrate():
     global respirate
@@ -192,8 +194,10 @@ def respirationrate():
         sec = end-start
         graph_res = graph_res.tolist()
         print(int(sec))
-        
-        if int(sec) % 60 == 0 and int(sec) > 0:
+        if len(graph_res) > 1000:
+            del graph_res[0]
+        if int(sec) >= 60:    
+        #if int(sec) % 60 == 0 and int(sec) > 0:
             if flag == True:
                 temp = np.array(graph_res)
                 graph_res = np.array(graph_res)
@@ -220,15 +224,19 @@ def respirationrate():
                 
                 lock.acquire()
                 respirate = len(peaks)
-                heartrate = differential(graph_res, graph_result2)
+                h_list, heartrate = differential(graph_res, graph_result2)
                 lock.release()
                 graph_res = graph_res.tolist()
                 flag = False
                 continue
+            if (int(sec) % 60) // 5 == 0:
+                draw_graph(graph_result2, h_list)
         else:
             flag = True
             continue
         
+            
+            
         
 def readSensor():
     global sen_num
