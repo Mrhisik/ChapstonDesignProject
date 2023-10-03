@@ -119,7 +119,7 @@ def draw_graph(respirate_graph, h_list):
     plt.title("Heartrate graph")
     
     plt.tight_layout()
-    plt.savefig("./templates/graph.png") 
+    plt.savefig("./templates/images/graph.png") 
               
 def differential(results):
     b_list = []
