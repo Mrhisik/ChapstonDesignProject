@@ -121,7 +121,7 @@ def draw_graph(respirate_graph, h_list):
     plt.tight_layout()
     plt.savefig("graph.png") 
               
-def differential(results, respirate_graph, time):
+def differential(results):
     b_list = []
     dif = []
     cnt = 0
@@ -224,7 +224,7 @@ def respirationrate():
                 
                 lock.acquire()
                 respirate = len(peaks)
-                h_list, heartrate = differential(graph_res, graph_result2)
+                h_list, heartrate = differential(graph_res)
                 lock.release()
                 graph_res = graph_res.tolist()
                 flag = False
