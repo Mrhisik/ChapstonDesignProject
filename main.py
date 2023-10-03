@@ -199,35 +199,38 @@ def respirationrate():
         if int(sec) >= 60:    
         #if int(sec) % 60 == 0 and int(sec) > 0:
             if (int(sec) % 60) // 5 == 0:
-                temp = np.array(graph_res)
-                graph_res = np.array(graph_res)
-                for i in range(graph_res.shape[0]):
-                    graph_result.append(graph_res[i-30:i+30].mean())
-                graph_result = np.array(graph_result)
-                for i in range(graph_result.shape[0]):
-                    graph_result1.append(graph_result[i-30:i+30].mean())
-                graph_result1 = np.array(graph_result1)
-                for i in range(graph_result1.shape[0]):
-                    graph_result2.append(graph_result1[i-30:i+30].mean())
-                peaks, _ = scipy.signal.find_peaks(graph_result2)
-                for j in peaks:
-                    y_list.append(graph_result2[j])
-                #print("peaks: {0}".format(peaks))
-                #print("y_list: {0}".format(y_list))
-                #print(graph_result2)
+                if flag == True:
+                    temp = np.array(graph_res)
+                    graph_res = np.array(graph_res)
+                    for i in range(graph_res.shape[0]):
+                        graph_result.append(graph_res[i-30:i+30].mean())
+                    graph_result = np.array(graph_result)
+                    for i in range(graph_result.shape[0]):
+                        graph_result1.append(graph_result[i-30:i+30].mean())
+                    graph_result1 = np.array(graph_result1)
+                    for i in range(graph_result1.shape[0]):
+                        graph_result2.append(graph_result1[i-30:i+30].mean())
+                    peaks, _ = scipy.signal.find_peaks(graph_result2)
+                    for j in peaks:
+                        y_list.append(graph_result2[j])
+                    #print("peaks: {0}".format(peaks))
+                    #print("y_list: {0}".format(y_list))
+                    #print(graph_result2)
 
-                
-                print("peaks: {0}".format(len(peaks)))
-                
-                graph_result = graph_result.tolist()
-                graph_result1 = graph_result1.tolist()
-                
-                lock.acquire()
-                respirate = len(peaks)
-                h_list, heartrate = differential(graph_res)
-                lock.release()
-                graph_res = graph_res.tolist()
-                draw_graph(graph_result2, h_list)
+                    
+                    print("peaks: {0}".format(len(peaks)))
+                    
+                    graph_result = graph_result.tolist()
+                    graph_result1 = graph_result1.tolist()
+                    
+                    lock.acquire()
+                    respirate = len(peaks)
+                    h_list, heartrate = differential(graph_res)
+                    lock.release()
+                    graph_res = graph_res.tolist()
+                    draw_graph(graph_result2, h_list)
+                    flag = False
+                    continue
         else:
             flag = True
             continue
