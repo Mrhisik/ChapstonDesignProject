@@ -199,6 +199,7 @@ def respirationrate():
         if int(sec) >= 60:    
         #if int(sec) % 60 == 0 and int(sec) > 0:
             if (int(sec) % 60) // 5 == 0:
+                flag = True
                 if flag == True:
                     temp = np.array(graph_res)
                     graph_res = np.array(graph_res)
@@ -235,8 +236,6 @@ def respirationrate():
             flag = True
             continue
         
-            
-            
         
 def readSensor():
     global sen_num
