@@ -120,6 +120,7 @@ def draw_graph(respirate_graph, h_list):
     
     plt.tight_layout()
     plt.savefig("./templates/images/graph.png") 
+    plt.clf()
               
 def differential(results):
     b_list = []
