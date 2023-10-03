@@ -119,7 +119,7 @@ def draw_graph(respirate_graph, h_list):
     plt.title("Heartrate graph")
     
     plt.tight_layout()
-    plt.savefig("graph.png") 
+    plt.savefig("./templates/graph.png") 
               
 def differential(results):
     b_list = []
@@ -198,7 +198,7 @@ def respirationrate():
             del graph_res[0]
         if int(sec) >= 60:    
         #if int(sec) % 60 == 0 and int(sec) > 0:
-            if flag == True:
+            if (int(sec) % 60) // 5 == 0:
                 temp = np.array(graph_res)
                 graph_res = np.array(graph_res)
                 for i in range(graph_res.shape[0]):
@@ -227,9 +227,6 @@ def respirationrate():
                 h_list, heartrate = differential(graph_res)
                 lock.release()
                 graph_res = graph_res.tolist()
-                flag = False
-                continue
-            if (int(sec) % 60) // 5 == 0:
                 draw_graph(graph_result2, h_list)
         else:
             flag = True
