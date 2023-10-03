@@ -28,8 +28,11 @@
               op.innerHTML =  "작동시간: " + values[1]+"초";
               nob.innerHTML =  "비수면 시간: " + values[2]+"초";
               ob.innerHTML =  "수면 시간: " + values[3]+"초";
-              respi.innerHTML = "분당 호흡 수: " + values[4]+"번";
-              hr.innerHTML = "심박 수: " + values[5]+"번";
+              if(values[4] != '0'){
+                respi.innerHTML = "분당 호흡 수: " + values[4]+"번";
+              }
+              if(values[5] != '0')
+                hr.innerHTML = "심박 수: " + values[5]+"번";
               
               
               
