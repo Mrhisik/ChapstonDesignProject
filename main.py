@@ -323,7 +323,7 @@ def mainPage():
     t2.start()
     t3.start()
     t4.start()
-    return render_template("TestPage.html")
+    return render_template("TestPage.html", image_file='templates/images/graph.png')
 
 @app.route("/sen", methods=['POST', 'GET'])
 def sendData():
