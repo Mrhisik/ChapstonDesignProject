@@ -156,7 +156,7 @@ def respirationrate():
     start = time.time()
     flag = True
     while True:
-        time.sleep(1/40)
+        time.sleep(1/50)
         result = 0
         ser.write("\x41".encode())
         
