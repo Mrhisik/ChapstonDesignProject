@@ -130,9 +130,10 @@ def differential(results, respirate_graph):
     for i in range(h_list.shape[0]-1):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
+    plt.subplot(2, 1, 1)
     plt.plot(respirate_graph, color="skyblue")
     plt.title("Respiration graph")    
-        
+    plt.subplot(2,1,2)
     plt.plot(h_list, color="skyblue")
     plt.title("Heartrate graph")
     
