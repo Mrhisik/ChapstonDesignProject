@@ -165,7 +165,8 @@ def respirationrate():
     start = time.time()
     flag = True
     while True:
-        time.sleep(1/50)
+        time.sleep(1/30)
+        
         result = 0
         ser.write("\x41".encode())
         
@@ -191,6 +192,7 @@ def respirationrate():
         sec = end-start
         graph_res = graph_res.tolist()
         print(int(sec))
+        
         if int(sec) % 60 == 0 and int(sec) > 0:
             if flag == True:
                 temp = np.array(graph_res)
@@ -226,6 +228,7 @@ def respirationrate():
         else:
             flag = True
             continue
+        
         
 def readSensor():
     global sen_num
