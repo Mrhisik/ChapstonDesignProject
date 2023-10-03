@@ -230,11 +230,13 @@ def respirationrate():
                     lock.release()
                     graph_res = graph_res.tolist()
                     draw_graph(graph_result2, h_list)
+                    graph_result1 = []
+                    graph_result2 = []
                     flag = False
                     continue
-        else:
-            flag = True
-            continue
+            else:
+                flag = True
+                continue
         
         
 def readSensor():
