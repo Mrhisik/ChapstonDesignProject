@@ -131,8 +131,9 @@ def differential(results):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
     plt.plot(h_list, color="skyblue")
+    plt.title("심박수 그래프")
     plt.tight_layout()
-    plt.savefig("../heartrate_graph.png")
+    plt.savefig("graph.png")
     print("심박수: {0}".format(cnt))
     return cnt
                 
@@ -204,8 +205,8 @@ def respirationrate():
                 #print("y_list: {0}".format(y_list))
                 #print(graph_result2)
                 plt.plot(graph_result2, color="skyblue")
-                plt.tight_layout()
-                plt.savefig("../respirate_graph.png")
+                plt.title("호흡수 그래프")
+                
                 print("peaks: {0}".format(len(peaks)))
                 
                 graph_result = graph_result.tolist()
