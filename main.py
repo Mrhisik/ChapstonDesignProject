@@ -15,7 +15,7 @@ from threading import Event, Thread
 import scipy
 import sys
 from scipy.signal import find_peaks
-
+import multiprocessing
 sen_num = 0
 i = 0
 lock = threading.Lock()
@@ -119,9 +119,9 @@ def draw_graph(respirate_graph, h_list):
     plt.title("Heartrate graph")
     
     plt.tight_layout()
-    plt.savefig("./templates/images/graph.png") 
+    plt.savefig("./static/images/graph.png") 
     plt.clf()
-              
+
 def differential(results):
     b_list = []
     dif = []
@@ -142,7 +142,7 @@ def differential(results):
     for i in range(h_list.shape[0]-1):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
-    print("심박수: {0}".format(cnt))
+    print("심박수: {0}".format(cnt*2))
     return h_list, cnt
                 
 def respirationrate():
@@ -168,7 +168,7 @@ def respirationrate():
     start = time.time()
     flag = True
     while True:
-        time.sleep(1/30)
+        time.sleep(1/50)
         
         result = 0
         ser.write("\x41".encode())
@@ -195,9 +195,10 @@ def respirationrate():
         sec = end-start
         graph_res = graph_res.tolist()
         print(int(sec))
-        if len(graph_res) > 1000:
+        if len(graph_res) > 1200:
             del graph_res[0]
-        if int(sec) >= 60:    
+
+        if int(sec) >= 60:
         #if int(sec) % 60 == 0 and int(sec) > 0:
             if int((int(sec) % 60) % 5) == 0:
                 
@@ -219,7 +220,6 @@ def respirationrate():
                     #print("y_list: {0}".format(y_list))
                     #print(graph_result2)
 
-                    
                     print("peaks: {0}".format(len(peaks)))
                     
                     graph_result = graph_result.tolist()
@@ -326,7 +326,7 @@ def mainPage():
     t2.start()
     t3.start()
     t4.start()
-    return render_template("TestPage.html")
+    return render_template("TestPage.html", image_file="images/graph.png")
 
 @app.route("/sen", methods=['POST', 'GET'])
 def sendData():

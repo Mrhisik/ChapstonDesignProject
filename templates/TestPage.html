@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache">
     <title>Sleep monitoring System</title>
     <script type="text/javascript">
       setInterval(readresult, 333)
@@ -18,6 +19,9 @@
         var respi = document.getElementById("respiration");
         var hr = document.getElementById("heartrate");
         var xhr = new XMLHttpRequest();
+        var imgsrc = "{{ url_for('static', filename=image_file) }}"
+        //document.getElementById("img").srcdoc = "<img src=\"{{ url_for('static', filename=image_file) }}\"";
+        document.getElementById("img").src = imgsrc + "?a="+(new Date().getTime());
         xhr.open("POST", "/sen", true)
         xhr.send();
         xhr.onload=()=>{
@@ -33,7 +37,6 @@
               }
               if(values[5] != '0')
                 hr.innerHTML = "심박 수: " + values[5]+"번";
-              
               
               
             } else{
@@ -65,7 +68,8 @@
             font-size: 40px;
         }
         img{
-          margin-left: 300px;
+          margin-left: 500px;
+          margin-bottom: 300px;
         }
 
     </style>
@@ -80,7 +84,7 @@
         <div id = "respiration">분당 호흡 수: -번</div>
         <div id = "heartrate">심박 수: -번</div>
         {% if True %}
-        <img src="images/graph.png" width="500" height="500">
+        <img id="img" src="{{ url_for('static', filename=image_file) }}" width = "640px" height = "480px" style="position:absolute; top:2px; right: 2px;"/>
         {% endif %}
     </form>
 </body>
