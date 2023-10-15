@@ -384,5 +384,5 @@ def sendData():
 if __name__ == "__main__":
     rknn=load_model()
     print("start")
-    os.remove("/static/graph.png")
+    os.remove("/static/images/graph.png")
     app.run(port = 8080, debug=True, host="localhost", threaded=True)
