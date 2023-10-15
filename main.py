@@ -362,10 +362,10 @@ def sendData():
         bed = True
     elif r == 6:
         r = "xsupine"
-        bed = False
+        bed = True
     elif r == 7:
         r = "prone"
-        bed = False
+        bed = True
     elif r == 8:
         r = "not sleeping"
         bed = False
