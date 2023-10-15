@@ -91,7 +91,7 @@
         <div id = "respiration">분당 호흡 수: -번</div>
         <div id = "heartrate">심박 수: -번</div>
         {% if True %}
-        <img id="img" src="{{ url_for('static', filename=image_file) }}" onerror="this.style.display='none'" alt='측정 중...' width = "640px" height = "480px" style="position:absolute; top:2px; right: 2px;"/>
+        <img id="img" src="{{ url_for('static', filename=image_file) }}" alt='측정 중...' width = "640px" height = "480px" style="position:absolute; top:2px; right: 2px;"/>
         {% endif %}
     </form>
 </body>

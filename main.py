@@ -26,7 +26,7 @@ obtime = 0
 bed = False
 respirate = 0
 heartrate = 0
-delete = 1
+
 
 def get_predict(probability):
     data = probability
@@ -147,7 +147,6 @@ def differential(results):
     return h_list, cnt
                 
 def respirationrate():
-    global delete
     global respirate
     global heartrate
     port = "/dev/ttyUSB1"
@@ -166,12 +165,6 @@ def respirationrate():
     graph_result2 = []
     
     temp = []
-    try:
-        if delete == 1:
-            os.remove("./static/images/graph.png")
-            delete = 0
-    except OSError as e:
-        print("no file")
         
     start = time.time()
     flag = True
