@@ -259,6 +259,7 @@ def readSensor():
     print(byte)
 
     while byte: 
+        lock.acquire()
         buffer = []
         buffers = []
         if byte == mask_header:
@@ -310,7 +311,7 @@ def readSensor():
         print(results.shape)
         #results = results[0:11, 64*i:64*i+11]
         results = results[0:11, 0:11]
-        lock.acquire()
+        
         sen_num = results
         lock.release()
         
@@ -321,12 +322,10 @@ def mainPage():
     t2 = threading.Thread(target=timer)
     t3 = threading.Thread(target=respirationrate)
     t4 = threading.Thread(target=sleep_timer)
-    t5 = threading.Thread(target=draw_graph)
     t1.start()
     t2.start()
     t3.start()
     t4.start()
-    t5.start()
     return render_template("TestPage.html", image_file="images/graph.png")
 
 @app.route("/sen", methods=['POST', 'GET'])
