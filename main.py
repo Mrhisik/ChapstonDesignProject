@@ -384,5 +384,12 @@ def sendData():
 if __name__ == "__main__":
     rknn=load_model()
     print("start")
-    os.remove("/static/images/graph.png")
+    a = 1
+    try:
+        if a == 1:
+            os.remove("./static/images/graph.png")
+            a = 0
+    except OSError as e:
+        print("no file")
+    os.remove("./static/images/graph.png")
     app.run(port = 8080, debug=True, host="localhost", threaded=True)
