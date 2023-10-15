@@ -200,7 +200,7 @@ def respirationrate():
 
         if int(sec) >= 60:
         #if int(sec) % 60 == 0 and int(sec) > 0:
-            if int((int(sec) % 60) % 5) == 0:
+            if int((int(sec) % 60) % 10) == 0:
                 
                 if flag == True:
                     temp = np.array(graph_res)
@@ -321,10 +321,12 @@ def mainPage():
     t2 = threading.Thread(target=timer)
     t3 = threading.Thread(target=respirationrate)
     t4 = threading.Thread(target=sleep_timer)
+    t5 = threading.Thread(target=draw_graph)
     t1.start()
     t2.start()
     t3.start()
     t4.start()
+    t5.start()
     return render_template("TestPage.html", image_file="images/graph.png")
 
 @app.route("/sen", methods=['POST', 'GET'])
