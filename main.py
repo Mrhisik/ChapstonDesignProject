@@ -226,8 +226,8 @@ def respirationrate():
                     
                     lock.acquire()
                     respirate = len(peaks)
-                    h_list, heartrate = differential(graph_res)
                     lock.release()
+                    h_list, heartrate = differential(graph_res)
                     graph_res = graph_res.tolist()
                     draw_graph(graph_result2, h_list)
                     graph_result = []
