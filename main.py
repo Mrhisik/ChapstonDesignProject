@@ -259,7 +259,7 @@ def readSensor():
     print(byte)
 
     while byte: 
-        lock.acquire()
+        
         buffer = []
         buffers = []
         if byte == mask_header:
@@ -311,7 +311,7 @@ def readSensor():
         print(results.shape)
         #results = results[0:11, 64*i:64*i+11]
         results = results[0:11, 0:11]
-        
+        lock.acquire()
         sen_num = results
         lock.release()
         
@@ -384,5 +384,5 @@ def sendData():
 if __name__ == "__main__":
     rknn=load_model()
     print("start")
-
+    os.remove("/static/graph.png")
     app.run(port = 8080, debug=True, host="localhost", threaded=True)
