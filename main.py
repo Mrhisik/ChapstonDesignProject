@@ -26,6 +26,7 @@ obtime = 0
 bed = False
 respirate = 0
 heartrate = 0
+delete = 1
 
 def get_predict(probability):
     data = probability
@@ -146,6 +147,7 @@ def differential(results):
     return h_list, cnt
                 
 def respirationrate():
+    global delete
     global respirate
     global heartrate
     port = "/dev/ttyUSB1"
@@ -164,7 +166,13 @@ def respirationrate():
     graph_result2 = []
     
     temp = []
-    
+    try:
+        if delete == 1:
+            os.remove("./static/images/graph.png")
+            delete = 0
+    except OSError as e:
+        print("no file")
+        
     start = time.time()
     flag = True
     while True:
@@ -200,7 +208,7 @@ def respirationrate():
 
         if int(sec) >= 60:
         #if int(sec) % 60 == 0 and int(sec) > 0:
-            if int((int(sec) % 60) % 10) == 0:
+            if int(sec) % 60 == 0 or int((int(sec) % 60) % 10) == 0:
                 
                 if flag == True:
                     temp = np.array(graph_res)
@@ -384,12 +392,4 @@ def sendData():
 if __name__ == "__main__":
     rknn=load_model()
     print("start")
-    a = 1
-    try:
-        if a == 1:
-            os.remove("./static/images/graph.png")
-            a = 0
-    except OSError as e:
-        print("no file")
-    os.remove("./static/images/graph.png")
     app.run(port = 8080, debug=True, host="localhost", threaded=True)
