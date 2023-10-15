@@ -194,7 +194,6 @@ def respirationrate():
         end = time.time()
         sec = end-start
         graph_res = graph_res.tolist()
-        graph_res = [x for x in graph_res if x > 0.001]
         print(int(sec))
         if len(graph_res) > 1200:
             del graph_res[0]
@@ -220,7 +219,6 @@ def respirationrate():
                     #print("peaks: {0}".format(peaks))
                     #print("y_list: {0}".format(y_list))
                     #print(graph_result2)
-                    peaks = [x for x in peaks if x > 0.01]
                     print("peaks: {0}".format(len(peaks)))
                     
                     graph_result = graph_result.tolist()
