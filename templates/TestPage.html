@@ -35,8 +35,15 @@
               if(values[4] != '0'){
                 respi.innerHTML = "분당 호흡 수: " + values[4]+"번";
               }
+              else{
+                respi.innerHTML = "분당 호흡 수: -번";
+              }
               if(values[5] != '0')
                 hr.innerHTML = "심박 수: " + values[5]+"번";
+
+              else{
+                hr.innerHTML = "심박 수: -번";
+              }
               
               
             } else{
