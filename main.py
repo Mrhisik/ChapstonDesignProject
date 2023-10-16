@@ -204,10 +204,11 @@ def respirationrate():
         print(int(sec))
         if len(graph_fil) > 1200:
             del graph_fil[0]
+            del graph_res[0]
 
         if int(sec) >= 60:
         #if int(sec) % 60 == 0 and int(sec) > 0:
-            if int(sec) % 60 == 0 or int((int(sec) % 60) % 10) == 0:
+            if int((int(sec) % 60) % 10) == 0:
                 
                 if flag == True:
                     temp = np.array(graph_fil)
