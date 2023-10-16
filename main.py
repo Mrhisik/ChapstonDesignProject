@@ -16,6 +16,7 @@ import scipy
 import sys
 from scipy.signal import find_peaks
 import multiprocessing
+
 sen_num = 0
 i = 0
 lock = threading.Lock()
@@ -26,7 +27,6 @@ obtime = 0
 bed = False
 respirate = 0
 heartrate = 0
-
 
 def get_predict(probability):
     data = probability
@@ -159,6 +159,7 @@ def respirationrate():
     cnt = 0
     ele = 0
     y_list = []
+    graph_fil = []
     graph_res = []
     graph_result = []
     graph_result1 = []
@@ -195,19 +196,24 @@ def respirationrate():
         end = time.time()
         sec = end-start
         graph_res = graph_res.tolist()
+        for x in graph_res:
+            if x < 0.0025:
+                graph_fil.append(0)
+            else:
+                graph_fil.append(x)
         print(int(sec))
-        if len(graph_res) > 1200:
-            del graph_res[0]
+        if len(graph_fil) > 1200:
+            del graph_fil[0]
 
         if int(sec) >= 60:
         #if int(sec) % 60 == 0 and int(sec) > 0:
             if int(sec) % 60 == 0 or int((int(sec) % 60) % 10) == 0:
                 
                 if flag == True:
-                    temp = np.array(graph_res)
-                    graph_res = np.array(graph_res)
-                    for i in range(graph_res.shape[0]):
-                        graph_result.append(graph_res[i-30:i+30].mean())
+                    temp = np.array(graph_fil)
+                    graph_fil = np.array(graph_fil)
+                    for i in range(graph_fil.shape[0]):
+                        graph_result.append(graph_fil[i-30:i+30].mean())
                     graph_result = np.array(graph_result)
                     for i in range(graph_result.shape[0]):
                         graph_result1.append(graph_result[i-30:i+30].mean())
@@ -228,8 +234,8 @@ def respirationrate():
                     lock.acquire()
                     respirate = len(peaks)
                     lock.release()
-                    h_list, heartrate = differential(graph_res)
-                    graph_res = graph_res.tolist()
+                    h_list, heartrate = differential(graph_fil)
+                    graph_fil = graph_fil.tolist()
                     draw_graph(graph_result2, h_list)
                     graph_result = []
                     graph_result1 = []
@@ -239,7 +245,6 @@ def respirationrate():
             else:
                 flag = True
                 continue
-        
         
 def readSensor():
     global sen_num
