@@ -15,7 +15,7 @@ from threading import Event, Thread
 import scipy
 import sys
 from scipy.signal import find_peaks
-import multiprocessing
+from multiprocessing import Process, Queue
 
 sen_num = 0
 i = 0
@@ -137,7 +137,7 @@ def differential(results):
         dif.append(d)
     dif = np.array(dif)
     for i in range(dif.shape[0]): # 심박수 추출
-        h_list.append(dif[i-15:i+15].mean())
+        h_list.append(dif[i-10:i+10].mean())
     h_list = np.array(h_list)
     
     for i in range(h_list.shape[0]-1):
@@ -196,14 +196,9 @@ def respirationrate():
         end = time.time()
         sec = end-start
         graph_res = graph_res.tolist()
-        for x in graph_res:
-            if x < 0.0025:
-                graph_fil.append(0)
-            else:
-                graph_fil.append(x)
+
         print(int(sec))
-        if len(graph_fil) > 1200:
-            del graph_fil[0]
+        if len(graph_res) > 1250:
             del graph_res[0]
 
         if int(sec) >= 60:
@@ -211,6 +206,11 @@ def respirationrate():
             if int((int(sec) % 60) % 10) == 0:
                 
                 if flag == True:
+                    for x in graph_res:
+                        if x < 0.0025:
+                            graph_fil.append(0)
+                        else:
+                            graph_fil.append(x)
                     temp = np.array(graph_fil)
                     graph_fil = np.array(graph_fil)
                     for i in range(graph_fil.shape[0]):
@@ -237,7 +237,9 @@ def respirationrate():
                     lock.release()
                     h_list, heartrate = differential(graph_fil)
                     graph_fil = graph_fil.tolist()
-                    draw_graph(graph_result2, h_list)
+                    mp = Process(target=draw_graph, args=(graph_result2, h_list))
+                    mp.start()
+                    graph_fil = []
                     graph_result = []
                     graph_result1 = []
                     graph_result2 = []
