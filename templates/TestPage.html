@@ -6,8 +6,11 @@
     <meta http-equiv="cache-control" content="no-cache">
     <title>Sleep monitoring System</title>
     <script type="text/javascript">
-      setInterval(readresult, 333)
-      
+
+
+
+      var anim_cnt = 0;
+
       function readresult(){
         var sec = 0
         var min = 0
@@ -52,11 +55,27 @@
           }
         }
       }
+      function anim(){
+         
+        var animation = document.getElementById("anim");
+        anim_cnt += 1;
+        if(anim_cnt % 4){
+          animation.innerHTML += ".";
+        }
+        else{
+          animation.innerHTML = '측정 중';
+        }
+
+      }
+      window.onload = function(){
+        setInterval(readresult, 333);
+        setInterval(anim,1000);
+      }
     </script>
     <style>
         .grid_parent{
           display: grid;
-          grid-gap: 5px;
+          grid-gap: 2px;
         }
 
         div{
@@ -64,40 +83,45 @@
         }
 
         #result{
-          font-size: 50px;
+          font-size: 3em;
           font-weight: bold;
           display: inline-block;
           border: 5px solid black;
           border-radius: 10px;
           padding: 10px;
         }
+        
 
     </style>
 </head>
 <body>
+
     <div class = "grid_parent" style="grid-template-rows: 1fr 3fr;">
 
         <div class="grid_parent" style="grid-row:1; grid-template-columns: 3fr 2fr">
-          <div id = "result" style="grid-column: 1"></div>
-          <div class="grid_parent" style="grid-column:2; grid-template-rows: 1fr 1fr 1fr">
-            <div id = "operatingtime" style="grid-row: 1; font-size: 30px;"></div>
-            <div id = "notob" style="grid-row: 2; font-size: 30px;"></div>
-            <div id = "onbed" style="grid-row: 3; font-size: 30px;"></div>
+          <div id = "result" style="grid-column: 1; margin-top: auto; margin-bottom: auto"></div>
+          <div class="grid_parent" style="grid-column:2; grid-template-rows: 1fr 1fr 1fr; margin-left: 50px">
+            <div id = "operatingtime" style="grid-row: 1; font-size: 1.5em;"></div>
+            <div id = "notob" style="grid-row: 2; font-size: 1.5em;"></div>
+            <div id = "onbed" style="grid-row: 3; font-size: 1.5em;"></div>
           </div>
         </div>
 
         <div class="grid_parent" style="grid-row:2; grid-template-columns: 1fr 2fr;">
 
           <div class="grid_parent" style="grid-column:1; grid-template-rows: 1fr 1fr;">
-            <div id = "respiration" style="grid-row:1; font-size: 40px;">분당 호흡 수: -번</div>
-            <div id = "heartrate" style="grid-row:2; font-size: 40px;">심박 수: -번</div>
+            <div id = "respiration" style="grid-row:1; font-size: 50px; margin-top: 20px;">분당 호흡 수: -번</div>
+            <div id = "heartrate" style="grid-row:2; font-size: 50px; margin-top: 20px;">심박 수: -번</div>
+          </div>     
+          <div class="grid_parent" style="margin-top: 12px; grid-column:2; grid-row:1; border: 2px solid black; border-radius: 20px; height: 480px;">
+            <div id="anim" style="grid-column:1; grid-row:1; margin: auto auto auto auto; font-size: 5em; font-weight: bold">측정 중</div>
+            {% if True %}
+              <img id="img" src="{{ url_for('static', filename=image_file) }}" style="grid-column:1;grid-row:1; margin: auto auto auto auto; text-align: center; width: 640px; height: 480px;" onerror="this.style.display='none'" onload="this.style.display='block'"/>
+            {% endif %}
           </div>
-          
-          {% if True %}
-          <img id="img" src="{{ url_for('static', filename=image_file) }}" style="grid-column: 2" alt='측정 중...' width = "640px" height = "480px" style="position:absolute; top:100px; right: 2px;"/>
-          {% endif %}
-        </div>
 
+        </div>
     </div>
+
 </body>
 </html>

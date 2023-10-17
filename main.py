@@ -143,7 +143,7 @@ def differential(results):
     for i in range(h_list.shape[0]-1):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
-    print("심박수: {0}".format(cnt*2))
+    print("심박수: {0}".format(cnt))
     return h_list, cnt
                 
 def respirationrate():
