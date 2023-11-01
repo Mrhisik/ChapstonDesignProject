@@ -7,8 +7,6 @@
     <title>Sleep monitoring System</title>
     <script type="text/javascript">
 
-
-
       var anim_cnt = 0;
 
       function readresult(){
@@ -21,6 +19,7 @@
         var ob = document.getElementById("onbed");
         var respi = document.getElementById("respiration");
         var hr = document.getElementById("heartrate");
+        var spt = document.getElementsByClassName("sleep_posture");
         var xhr = new XMLHttpRequest();
         var imgsrc = "{{ url_for('static', filename=image_file) }}"
         //document.getElementById("img").srcdoc = "<img src=\"{{ url_for('static', filename=image_file) }}\"";
@@ -47,7 +46,15 @@
               else{
                 hr.innerHTML = "심박 수: -번";
               }
-              
+              spt[0].innerHTML = "nothing: "+values[6]+"초"; 
+              spt[1].innerHTML = "leftsupine: "+values[7]+"초"; 
+              spt[2].innerHTML = "leftprone: "+values[8]+"초"; 
+              spt[3].innerHTML = "rightsupine: "+values[9]+"초"; 
+              spt[4].innerHTML = "rightprone: "+values[10]+"초"; 
+              spt[5].innerHTML = "supine: "+values[11]+"초"; 
+              spt[6].innerHTML = "xsupine: "+values[12]+"초"; 
+              spt[7].innerHTML = "prone: "+values[13]+"초"; 
+              spt[8].innerHTML = "not sleeping: "+values[14]+"초"; 
               
             } else{
               res.innerHTML = "failed";
@@ -67,9 +74,20 @@
         }
 
       }
+      function display(){
+        var target = document.getElementById("sleep");
+        if (target.style.display=="none"){
+          target.style.display="block";
+        }
+        else{
+          target.style.display="none";
+        }
+        
+      }
       window.onload = function(){
         setInterval(readresult, 333);
         setInterval(anim,1000);
+        display();
       }
     </script>
     <style>
@@ -121,6 +139,18 @@
           </div>
 
         </div>
+    </div>
+    <input type="button" value="자세 별 수면시간" onclick="display();"/>
+    <div id="sleep" style ="background-color: white; border:2px solid black; display:block; position: absolute; top: auto; bottom: auto;">
+      <div class = "sleep_posture">nothing: </div>
+      <div class = "sleep_posture">leftsupine: </div>
+      <div class = "sleep_posture">leftprone: </div>
+      <div class = "sleep_posture">rightsupine: </div>
+      <div class = "sleep_posture">rightprone: </div>
+      <div class = "sleep_posture">supine: </div>
+      <div class = "sleep_posture">xsupine: </div>
+      <div class = "sleep_posture">prone: </div>
+      <div class = "sleep_posture">not sleeping: </div>
     </div>
 
 </body>

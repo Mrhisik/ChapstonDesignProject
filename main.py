@@ -17,16 +17,33 @@ import sys
 from scipy.signal import find_peaks
 from multiprocessing import Process, Queue
 
-sen_num = 0
-i = 0
+file_path="./static/images/graph.png"
+try:
+    os.remove(file_path)
+except OSError as e:
+    print("Already deleted")
+sen_num = 0 # 섬유 센서 값 전역변수
+i = 0 
 lock = threading.Lock()
-event = Event()
-optime = 0
-notobtime = 0
-obtime = 0
-bed = False
-respirate = 0
-heartrate = 0
+event = Event() 
+optime = 0 # 작동시간 전역변수
+notobtime = 0 # 비수면 시간 전역변수
+obtime = 0 # 수면 시간 전역변수
+bed = False # 수면 여부 전역변수
+respirate = 0 # 호흡수 전역변수
+heartrate = 0 # 심박수 전역변수
+
+# 자세 별 수면 시간 용 전역변수
+sleep_posture=[False, False, False, False, False, False, False, False, False]
+nothing = 0
+leftsupine = 0
+leftprone = 0
+rightsupine = 0
+rightprone = 0
+prone = 0
+supine = 0
+xsupine = 0
+playing = 0
 
 def get_predict(probability):
     data = probability
@@ -111,6 +128,48 @@ def sleep_timer():
             notobtime = notobtime + 1
             time.sleep(1)
             
+def sleep_posture_timer():
+    global sleep_posture
+    global nothing
+    global leftsupine
+    global leftprone
+    global rightsupine
+    global rightprone
+    global supine
+    global xsupine
+    global prone
+    global playing
+    
+    while True:
+        print(sleep_posture)
+        if sleep_posture[0] == True:
+            nothing = nothing + 1
+            time.sleep(1)
+        elif sleep_posture[1] == True:
+            leftsupine = leftsupine + 1
+            time.sleep(1)
+        elif sleep_posture[2] == True:
+            leftprone = leftprone + 1
+            time.sleep(1)
+        elif sleep_posture[3] == True:
+            rightsupine = rightsupine + 1
+            time.sleep(1)
+        elif sleep_posture[4] == True:
+            rightprone = rightprone + 1
+            time.sleep(1)  
+        elif sleep_posture[5] == True:
+            supine = supine + 1
+            time.sleep(1) 
+        elif sleep_posture[6] == True:
+            xsupine = xsupine + 1
+            time.sleep(1)
+        elif sleep_posture[7] == True:
+            prone = prone + 1
+            time.sleep(1)  
+        elif sleep_posture[8] == True:
+            playing = playing + 1
+            time.sleep(1)
+            
 def draw_graph(respirate_graph, h_list):
     plt.subplot(2, 1, 1)
     plt.plot(respirate_graph, color="skyblue")
@@ -143,7 +202,7 @@ def differential(results):
     for i in range(h_list.shape[0]-1):
         if h_list[i] < 0 and h_list[i+1]>0:
             cnt+=1
-    print("심박수: {0}".format(cnt))
+    print("심박수: {0}".format(cnt*2))
     return h_list, cnt
                 
 def respirationrate():
@@ -207,7 +266,7 @@ def respirationrate():
                 
                 if flag == True:
                     for x in graph_res:
-                        if x < 0.0025:
+                        if x < 0.05:
                             graph_fil.append(0)
                         else:
                             graph_fil.append(x)
@@ -324,6 +383,14 @@ def readSensor():
         sen_num = results
         lock.release()
         
+def sleep_posture_stat(num):
+    global sleep_posture
+    for i in range(len(sleep_posture)):
+        if i == num:
+            sleep_posture[i] = True
+        else:
+            sleep_posture[i] = False
+        
 app = Flask(__name__)
 @app.route("/", methods=['POST', 'GET'])
 def mainPage():
@@ -331,10 +398,12 @@ def mainPage():
     t2 = threading.Thread(target=timer)
     t3 = threading.Thread(target=respirationrate)
     t4 = threading.Thread(target=sleep_timer)
+    t5 = threading.Thread(target=sleep_posture_timer)
     t1.start()
     t2.start()
     t3.start()
     t4.start()
+    t5.start()
     return render_template("TestPage.html", image_file="images/graph.png")
 
 @app.route("/sen", methods=['POST', 'GET'])
@@ -346,6 +415,17 @@ def sendData():
     global notobtime
     global respirate
     global heartrate
+    global sleep_posture
+    global nothing
+    global leftsupine
+    global leftprone
+    global rightsupine
+    global rightprone
+    global supine
+    global xsupine
+    global prone
+    global playing
+    
     hr = heartrate
     respi = respirate
     r = sen_num
@@ -355,38 +435,49 @@ def sendData():
     if r == 0:
         r = "nothing"
         bed = False
+        sleep_posture_stat(0)
     elif r == 1:
         r = "leftsupine"
         bed = True
+        sleep_posture_stat(1)
     elif r == 2:
         r = "leftprone"
         bed = True
+        sleep_posture_stat(2)
     elif r == 3:
         r = "rightsupine"
         bed = True
+        sleep_posture_stat(3)
     elif r == 4:
         r = "rightprone"
         bed = True
+        sleep_posture_stat(4)
     elif r == 5:
         r = "supine"
         bed = True
+        sleep_posture_stat(5)
     elif r == 6:
         r = "xsupine"
         bed = True
+        sleep_posture_stat(6)
     elif r == 7:
         r = "prone"
         bed = True
+        sleep_posture_stat(7)
     elif r == 8:
         r = "not sleeping"
         bed = False
+        sleep_posture_stat(8)
     elif r == 9:
         r = "not sleeping"
         bed = False
+        sleep_posture_stat(8)
         
     print(r)
     
     r = str(r)
-    data = r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)+","+str(hr)
+    data = (r+","+str(optime)+","+str(notobtime)+","+str(obtime)+","+str(respi)+","+str(hr)+","+str(nothing)+","+str(leftsupine)+","+str(leftprone)+","
+            +str(rightsupine)+","+str(rightprone)+","+str(supine)+","+str(xsupine)+","+str(prone)+","+str(playing))
     print(data)
     return data
 
