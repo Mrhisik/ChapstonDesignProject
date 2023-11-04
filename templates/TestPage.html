@@ -31,9 +31,9 @@
             if(xhr.status === 200){
               var values = xhr.responseText.split(",");
               res.innerHTML = "수면자세: " + values[0];
-              op.innerHTML =  "작동시간: " + values[1]+"초";
-              nob.innerHTML =  "비수면 시간: " + values[2]+"초";
-              ob.innerHTML =  "수면 시간: " + values[3]+"초";
+              op.innerHTML =  "작동시간: " + values[1]+"s";
+              nob.innerHTML =  "비수면 시간: " + values[2]+"s";
+              ob.innerHTML =  "수면 시간: " + values[3]+"s";
               if(values[4] != '0'){
                 respi.innerHTML = "분당 호흡 수: " + values[4]+"번";
               }
@@ -46,15 +46,15 @@
               else{
                 hr.innerHTML = "심박 수: -번";
               }
-              spt[0].innerHTML = "nothing: "+values[6]+"초"; 
-              spt[1].innerHTML = "leftsupine: "+values[7]+"초"; 
-              spt[2].innerHTML = "leftprone: "+values[8]+"초"; 
-              spt[3].innerHTML = "rightsupine: "+values[9]+"초"; 
-              spt[4].innerHTML = "rightprone: "+values[10]+"초"; 
-              spt[5].innerHTML = "supine: "+values[11]+"초"; 
-              spt[6].innerHTML = "xsupine: "+values[12]+"초"; 
-              spt[7].innerHTML = "prone: "+values[13]+"초"; 
-              spt[8].innerHTML = "not sleeping: "+values[14]+"초"; 
+              spt[0].innerHTML = values[6]+"s"; 
+              spt[1].innerHTML = values[7]+"s"; 
+              spt[2].innerHTML = values[8]+"s"; 
+              spt[3].innerHTML = values[9]+"s"; 
+              spt[4].innerHTML = values[10]+"s"; 
+              spt[5].innerHTML = values[11]+"s";  
+              spt[6].innerHTML = values[12]+"s"; 
+              spt[7].innerHTML = values[13]+"s"; 
+              spt[8].innerHTML = values[14]+"s"; 
               
             } else{
               res.innerHTML = "failed";
@@ -76,11 +76,14 @@
       }
       function display(){
         var target = document.getElementById("sleep");
+        var back = document.getElementById("opaci");
         if (target.style.display=="none"){
           target.style.display="block";
+          back.style.display="block";
         }
         else{
           target.style.display="none";
+          back.style.display="none";
         }
         
       }
@@ -140,18 +143,30 @@
 
         </div>
     </div>
+    <div id="opaci" style="opacity: 0.5; background-color: gray; width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; display: none;"></div>  
     <input type="button" value="자세 별 수면시간" onclick="display();" style="position: absolute; bottom: 10px; width: 250px; height:100px; font-size: 2em; font-family: sans-serif; background-color: white; border: 2px solid black;"/>
-    <div id="sleep" style ="background-color: white; border:2px solid black; display:block; position: absolute; top: 50%; left: 50%; width: 500px; height: 500px; text-align: center; margin: -250px 0 0 -250px;">
-      <div class = "sleep_posture">nothing: </div>
-      <div class = "sleep_posture">leftsupine: </div>
-      <div class = "sleep_posture">leftprone: </div>
-      <div class = "sleep_posture">rightsupine: </div>
-      <div class = "sleep_posture">rightprone: </div>
-      <div class = "sleep_posture">supine: </div>
-      <div class = "sleep_posture">xsupine: </div>
-      <div class = "sleep_posture">prone: </div>
-      <div class = "sleep_posture">not sleeping: </div>
+    
+    <div id="sleep" style ="background-color: white; border:2px solid black; display:block; position: absolute; top: 50%; left: 0px; margin: -250px 0 0 0; width: 100%; height: 500px; font-size: 2em; ">
+      <div style="text-align: center; display: grid; width: calc(inherit/2); grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(9, 1fr);height: 500px;">
+        <div style="grid-column: 2; grid-row: 1;">nothing</div>
+        <div style="grid-column: 2; grid-row: 2;">leftsupine</div>
+        <div style="grid-column: 2; grid-row: 3;">leftprone</div>
+        <div style="grid-column: 2; grid-row: 4;">rightsupine</div>
+        <div style="grid-column: 2; grid-row: 5;">rightprone</div>
+        <div style="grid-column: 2; grid-row: 6;">supine</div>
+        <div style="grid-column: 2; grid-row: 7;">xsupine</div>
+        <div style="grid-column: 2; grid-row: 8;">prone</div>
+        <div style="grid-column: 2; grid-row: 9;">not sleeping</div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 1;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 2;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 3;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 4;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 5;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 6;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 7;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 8;"> </div>
+        <div class = "sleep_posture" style="grid-column: 3; grid-row: 9;"> </div>
+      </div>
     </div>
-
 </body>
 </html>
