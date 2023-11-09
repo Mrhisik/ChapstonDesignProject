@@ -45,13 +45,6 @@ supine = 0
 xsupine = 0
 playing = 0
 
-def get_predict(probability):
-    data = probability
-    data = data.tolist()
-    max_prob = max(data)
-
-    return data.index(max_prob), max_prob
-
 def load_model():
     # Create RKNN objects
     rknn = RKNNLite()
@@ -141,7 +134,6 @@ def sleep_posture_timer():
     global playing
     
     while True:
-        print(sleep_posture)
         if sleep_posture[0] == True:
             nothing = nothing + 1
             time.sleep(1)
@@ -186,24 +178,28 @@ def differential(results):
     b_list = []
     dif = []
     cnt = 0
-    h_list = []
+    heart_list1 = []
+    heart_list2 = []
     
     for i in range(results.shape[0]):
         b_list.append(results[i].mean())
+    b_list = np.array(b_list)
     
-    for i in range(len(b_list)-1):
-        d = b_list[i+1]-b_list[i]
+    for i in range(b_list.shape[0]): # 심박수 추출
+        heart_list1.append(b_list[i-10:i+10].mean())
+    heart_list1 = np.array(heart_list1)
+    
+    for i in range(len(heart_list1)-1):
+        d = heart_list1[i+1]-heart_list1[i]
         dif.append(d)
     dif = np.array(dif)
-    for i in range(dif.shape[0]): # 심박수 추출
-        h_list.append(dif[i-10:i+10].mean())
-    h_list = np.array(h_list)
     
-    for i in range(h_list.shape[0]-1):
-        if h_list[i] < 0 and h_list[i+1]>0:
+    for i in range(dif.shape[0]-1):
+        if dif[i] <1.0 and dif[i] > 0.0002 and dif[i+1]<-0.0002 and dif[i+1] > -1.0:
             cnt+=1
-    print("심박수: {0}".format(cnt*2))
-    return h_list, cnt
+            
+    print("심박수: {0}".format(cnt))
+    return dif, cnt
                 
 def respirationrate():
     global respirate
@@ -227,7 +223,8 @@ def respirationrate():
     temp = []
         
     start = time.time()
-    flag = True
+    flag1 = True
+    flag2 = True
     while True:
         time.sleep(1/50)
         
@@ -242,7 +239,7 @@ def respirationrate():
 
             bytes.append(i)
             result = result + i
-            print(i, end=" ")
+            #print(i, end=" ")
             
         if cnt == 0 and result > 0:
             cnt = cnt+ 1
@@ -255,6 +252,7 @@ def respirationrate():
         end = time.time()
         sec = end-start
         graph_res = graph_res.tolist()
+        print(max(graph_res))
 
         print(int(sec))
         if len(graph_res) > 1250:
@@ -262,30 +260,32 @@ def respirationrate():
 
         if int(sec) >= 60:
         #if int(sec) % 60 == 0 and int(sec) > 0:
-            if int((int(sec) % 60) % 10) == 0:
-                
-                if flag == True:
-                    for x in graph_res:
-                        if x < 0.05:
-                            graph_fil.append(0)
+            if int(sec) % 60 == 0:
+                if flag2 == True:
+                    
+                    for i in graph_res:
+                        if i < 0.02:
+                            temp.append(0)
                         else:
-                            graph_fil.append(x)
-                    temp = np.array(graph_fil)
-                    graph_fil = np.array(graph_fil)
-                    for i in range(graph_fil.shape[0]):
-                        graph_result.append(graph_fil[i-30:i+30].mean())
+                            temp.append(i)
+                    temp = np.array(temp)
+                    for i in range(temp.shape[0]):
+                        graph_result.append(temp[i-30:i+30].mean())
+                    
                     graph_result = np.array(graph_result)
+                    
                     for i in range(graph_result.shape[0]):
                         graph_result1.append(graph_result[i-30:i+30].mean())
+                    
                     graph_result1 = np.array(graph_result1)
+                    
                     for i in range(graph_result1.shape[0]):
                         graph_result2.append(graph_result1[i-30:i+30].mean())
+                    
                     peaks, _ = scipy.signal.find_peaks(graph_result2)
+                    
                     for j in peaks:
                         y_list.append(graph_result2[j])
-                    #print("peaks: {0}".format(peaks))
-                    #print("y_list: {0}".format(y_list))
-                    #print(graph_result2)
                     print("peaks: {0}".format(len(peaks)))
                     
                     graph_result = graph_result.tolist()
@@ -294,18 +294,42 @@ def respirationrate():
                     lock.acquire()
                     respirate = len(peaks)
                     lock.release()
+                    temp = []
+                    temp2 = graph_result2
+                    
+
+                    flag2 = False
+                    continue
+                        
+            if int((int(sec) % 60) % 10) == 0:
+                
+                if flag1 == True:
+                    
+                    for x in graph_res:
+                        if x < 0.02:
+                            graph_fil.append(0)
+                        else:
+                            graph_fil.append(x)
+                    graph_fil = np.array(graph_fil)
+                    #print("peaks: {0}".format(peaks))
+                    #print("y_list: {0}".format(y_list))
+                    #print(graph_result2)
+                    
                     h_list, heartrate = differential(graph_fil)
-                    graph_fil = graph_fil.tolist()
-                    mp = Process(target=draw_graph, args=(graph_result2, h_list))
+
+                    mp = Process(target=draw_graph, args=(temp2, h_list))
                     mp.start()
+                    
+                    graph_fil = graph_fil.tolist()
                     graph_fil = []
                     graph_result = []
                     graph_result1 = []
                     graph_result2 = []
-                    flag = False
+                    flag1 = False
                     continue
             else:
-                flag = True
+                flag1 = True
+                flag2 = True
                 continue
         
 def readSensor():
@@ -325,63 +349,65 @@ def readSensor():
     
     byte = opened_serial_port.read(1) 
     print(byte)
+    try:
+        while byte: 
+            
+            buffer = []
+            buffers = []
+            if byte == mask_header:
+                temp_header = byte
+                byte = opened_serial_port.read(1)
 
-    while byte: 
-        
-        buffer = []
-        buffers = []
-        if byte == mask_header:
-            temp_header = byte
+                if byte == mask_header:
+                    header = temp_header + byte
+                    
+                    buffer.append(int_from_bytes(header))
+                    byte = opened_serial_port.read(2)
+                    
+                    while byte:
+                        if byte != mask_tail:
+                            temp = int_from_bytes(byte)
+                            buffer.append(temp)
+                            
+                            if len(buffer) == 2:
+                                b_array = bytearray(byte)
+                                b_array.reverse()
+                                temp_bitwise_and = bitwise_and_bytes(b_array, mask_serial_number)
+                                buffer[-1] = int_from_bytes(temp_bitwise_and)
+                            
+                            byte = opened_serial_port.read(2)
+
+                        else:
+                            tail = int_from_bytes(byte)
+                            buffer.append(tail)
+                            buffers.append(buffer)
+                            break        
+            #print("buffer: ", buffer)
+            print("len(buffer): ", len(buffer))
+            
             byte = opened_serial_port.read(1)
 
-            if byte == mask_header:
-                header = temp_header + byte
-                
-                buffer.append(int_from_bytes(header))
-                byte = opened_serial_port.read(2)
-                
-                while byte:
-                    if byte != mask_tail:
-                        temp = int_from_bytes(byte)
-                        buffer.append(temp)
-                        
-                        if len(buffer) == 2:
-                            b_array = bytearray(byte)
-                            b_array.reverse()
-                            temp_bitwise_and = bitwise_and_bytes(b_array, mask_serial_number)
-                            buffer[-1] = int_from_bytes(temp_bitwise_and)
-                        
-                        byte = opened_serial_port.read(2)
+            buffers2 = buffers
+            max_col = 32
+            max_row = 64
+            max_bytes = max_row * max_col
+            matrix = np.zeros((len(buffers2), max_row, max_col))
 
-                    else:
-                        tail = int_from_bytes(byte)
-                        buffer.append(tail)
-                        buffers.append(buffer)
-                        break        
-        #print("buffer: ", buffer)
-        print("len(buffer): ", len(buffer))
-        
-        byte = opened_serial_port.read(1)
+            for i, buffer in enumerate(buffers2):
+                pressure_sensor =buffer[2:2+max_bytes]
+                matrix[i] = np.array(pressure_sensor).reshape(max_row, max_col)
 
-        buffers2 = buffers
-        max_col = 32
-        max_row = 64
-        max_bytes = max_row * max_col
-        matrix = np.zeros((len(buffers2), max_row, max_col))
-
-        for i, buffer in enumerate(buffers2):
-            pressure_sensor =buffer[2:2+max_bytes]
-            matrix[i] = np.array(pressure_sensor).reshape(max_row, max_col)
-
-        df = pd.DataFrame(matrix.reshape(-1, 32).T)
-        df = df.to_numpy()
-        results = df/0xffff
-        print(results.shape)
-        #results = results[0:11, 64*i:64*i+11]
-        results = results[0:11, 0:11]
-        lock.acquire()
-        sen_num = results
-        lock.release()
+            df = pd.DataFrame(matrix.reshape(-1, 32).T)
+            df = df.to_numpy()
+            results = df/0xffff
+            print(results.shape)
+            #results = results[0:11, 64*i:64*i+11]
+            results = results[0:11, 0:11]
+            lock.acquire()
+            sen_num = results
+            lock.release()
+    except KeyboardInterrupt:
+        sys.exit()
         
 def sleep_posture_stat(num):
     global sleep_posture
