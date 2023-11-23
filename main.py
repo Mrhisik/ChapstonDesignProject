@@ -16,12 +16,14 @@ import scipy
 import sys
 from scipy.signal import find_peaks
 from multiprocessing import Process, Queue
+from selenium import webdriver
 
 file_path="./static/images/graph.png"
 try:
     os.remove(file_path)
 except OSError as e:
     print("Already deleted")
+    
 sen_num = 0 # 섬유 센서 값 전역변수
 i = 0 
 lock = threading.Lock()
@@ -32,6 +34,8 @@ obtime = 0 # 수면 시간 전역변수
 bed = False # 수면 여부 전역변수
 respirate = 0 # 호흡수 전역변수
 heartrate = 0 # 심박수 전역변수
+
+postures = []
 
 # 자세 별 수면 시간 용 전역변수
 sleep_posture=[False, False, False, False, False, False, False, False, False]
@@ -62,9 +66,10 @@ def load_model():
     return rknn
 
 def predict(rknn, pic):
-    im = pic   # Loading image  # Image zooming to 64x64
+    im = pic   # Loading image  # Image zooming to 11x11
     outputs = rknn.inference(inputs=[im])   # Running reasoning to get reasoni>
     #pred, prob = get_predict(outputs)     # Converting Reasoning Results into >
+    print(outputs)
     outputs = np.argmax(outputs)
     print(outputs)
     return outputs
@@ -204,7 +209,7 @@ def differential(results):
 def respirationrate():
     global respirate
     global heartrate
-    port = "/dev/ttyUSB1"
+    port = "/dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DM03KP4K-if00-port0"
     baud = 1497600
     exit = False
     sec = 0
@@ -296,7 +301,6 @@ def respirationrate():
                     lock.release()
                     temp = []
                     temp2 = graph_result2
-                    
 
                     flag2 = False
                     continue
@@ -311,9 +315,6 @@ def respirationrate():
                         else:
                             graph_fil.append(x)
                     graph_fil = np.array(graph_fil)
-                    #print("peaks: {0}".format(peaks))
-                    #print("y_list: {0}".format(y_list))
-                    #print(graph_result2)
                     
                     h_list, heartrate = differential(graph_fil)
 
@@ -339,7 +340,7 @@ def readSensor():
     mask_header = b'\xfa'
     mask_tail = b'\xfe\xfe'
     mask_serial_number = bytes(b'\x80\x00')
-    port_number = '/dev/ttyUSB0'
+    port_number = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AU02HXMH-if00-port0'
     try:
         opened_serial_port = open_serial_port(port_number, baud_rate)     
     except:
@@ -349,65 +350,63 @@ def readSensor():
     
     byte = opened_serial_port.read(1) 
     print(byte)
-    try:
-        while byte: 
-            
-            buffer = []
-            buffers = []
-            if byte == mask_header:
-                temp_header = byte
-                byte = opened_serial_port.read(1)
-
-                if byte == mask_header:
-                    header = temp_header + byte
-                    
-                    buffer.append(int_from_bytes(header))
-                    byte = opened_serial_port.read(2)
-                    
-                    while byte:
-                        if byte != mask_tail:
-                            temp = int_from_bytes(byte)
-                            buffer.append(temp)
-                            
-                            if len(buffer) == 2:
-                                b_array = bytearray(byte)
-                                b_array.reverse()
-                                temp_bitwise_and = bitwise_and_bytes(b_array, mask_serial_number)
-                                buffer[-1] = int_from_bytes(temp_bitwise_and)
-                            
-                            byte = opened_serial_port.read(2)
-
-                        else:
-                            tail = int_from_bytes(byte)
-                            buffer.append(tail)
-                            buffers.append(buffer)
-                            break        
-            #print("buffer: ", buffer)
-            print("len(buffer): ", len(buffer))
-            
+    while byte: 
+        
+        buffer = []
+        buffers = []
+        if byte == mask_header:
+            temp_header = byte
             byte = opened_serial_port.read(1)
+            
+            if byte == mask_header:
+                header = temp_header + byte
+                
+                buffer.append(int_from_bytes(header))
+                byte = opened_serial_port.read(2)
+                
+                while byte:
+                    if byte != mask_tail:
+                        temp = int_from_bytes(byte)
+                        buffer.append(temp)
+                        
+                        if len(buffer) == 2:
+                            b_array = bytearray(byte)
+                            b_array.reverse()
+                            temp_bitwise_and = bitwise_and_bytes(b_array, mask_serial_number)
+                            buffer[-1] = int_from_bytes(temp_bitwise_and)
+                        
+                        byte = opened_serial_port.read(2)
 
-            buffers2 = buffers
-            max_col = 32
-            max_row = 64
-            max_bytes = max_row * max_col
-            matrix = np.zeros((len(buffers2), max_row, max_col))
+                    else:
+                        tail = int_from_bytes(byte)
+                        buffer.append(tail)
+                        buffers.append(buffer)
+                        break
+                          
+        #print("buffer: ", buffer)
+        print("len(buffer): ", len(buffer))
+        
+        byte = opened_serial_port.read(1)
 
-            for i, buffer in enumerate(buffers2):
-                pressure_sensor =buffer[2:2+max_bytes]
-                matrix[i] = np.array(pressure_sensor).reshape(max_row, max_col)
+        buffers2 = buffers
+        max_col = 32
+        max_row = 64
+        max_bytes = max_row * max_col
+        matrix = np.zeros((len(buffers2), max_row, max_col))
 
-            df = pd.DataFrame(matrix.reshape(-1, 32).T)
-            df = df.to_numpy()
-            results = df/0xffff
-            print(results.shape)
-            #results = results[0:11, 64*i:64*i+11]
-            results = results[0:11, 0:11]
-            lock.acquire()
-            sen_num = results
-            lock.release()
-    except KeyboardInterrupt:
-        sys.exit()
+        for i, buffer in enumerate(buffers2):
+            pressure_sensor =buffer[2:2+max_bytes]
+            matrix[i] = np.array(pressure_sensor).reshape(max_row, max_col)
+
+        df = pd.DataFrame(matrix.reshape(-1, 32).T)
+        df = df.to_numpy()
+        results = df/0xffff
+        print(results.shape)
+        #results = results[0:11, 64*i:64*i+11]
+        results = results[0:11, 0:11]
+        lock.acquire()
+        sen_num = results
+        lock.release()
         
 def sleep_posture_stat(num):
     global sleep_posture
@@ -451,13 +450,24 @@ def sendData():
     global xsupine
     global prone
     global playing
-    
+    global postures
     hr = heartrate
     respi = respirate
     r = sen_num
-
-    print(" i => ", i)
+    print("r=",r)
+    
     r = predict(rknn, r.astype("float32"))
+    temp = r
+    postures.append(r)
+    
+    if len(postures) > 5:
+        del postures[0]
+        r = max(set(postures), key=postures.count)
+    else:
+        r = temp
+        
+    print(postures)
+    print(r)
     if r == 0:
         r = "nothing"
         bed = False

@@ -74,6 +74,7 @@
         }
 
       }
+      
       function display(){
         var target = document.getElementById("sleep");
         var back = document.getElementById("opaci");
@@ -88,10 +89,11 @@
         
       }
       window.onload = function(){
-        setInterval(readresult, 333);
+        setInterval(readresult, 1000);
         setInterval(anim,1000);
         display();
       }
+      
     </script>
     <style>
         .grid_parent{
@@ -112,7 +114,6 @@
           padding: 10px;
         }
         
-
     </style>
 </head>
 <body>
